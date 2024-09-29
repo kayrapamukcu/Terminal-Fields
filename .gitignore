@@ -1,0 +1,25 @@
+# Visual Studio files
+.git/
+.vs/
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sdf
+*.opensdf
+*.vcxproj.ipch
+*.sln
+*.dll
+ipch/
+*.db
+*.obj
+*.exe
+*.pdb
+*.log
+*.ilk
+*.idb
+CMakeCache.txt
+Debug/
+Release/
+x64/
+build/
+Terminal.aadd649c/
