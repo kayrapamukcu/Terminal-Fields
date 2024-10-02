@@ -122,6 +122,7 @@ void Overworld::overworldInit() {
 
 void Overworld::overworldChangeScreen(int direction, Player& player) {
 	switch (direction) {
+		//try making all these switch cases better
 	case 0: //up
 		Overworld::overworldY--;
 		player.y = Main::FIELD_HEIGHT - 5;
@@ -139,6 +140,7 @@ void Overworld::overworldChangeScreen(int direction, Player& player) {
 		player.x = 0;
 		break;
 	}
+	Screen::transition(direction, 0.0001f);
 	Screen::clearTerminal();
 	Screen::clearTerminalColor();
 	overworldPopulate(10, 5, 5);
@@ -153,7 +155,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y - 1][player.x] == 'E') {
-			Screen::transition(3);
+			Screen::transition(4, 0.0003f);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -163,7 +165,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y + 1][player.x] == 'E') {
-			Screen::transition(3);
+			Screen::transition(4, 0.0003f);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -173,7 +175,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y][player.x-1] == 'E') {
-			Screen::transition(3);
+			Screen::transition(4, 0.0003f);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -183,7 +185,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y][player.x+1] == 'E') {
-			Screen::transition(3);
+			Screen::transition(4, 0.0003f);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}

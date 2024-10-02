@@ -121,7 +121,7 @@ void Screen::setCharInVertexArray(sf::VertexArray& terminal, int x, int y, char 
 	terminal[index + 3].color = color;
 }
 
-void Screen::transition(int direction) { //direction 0 = left to right, 1 = right to left, 2 = top to bottom, 3 = bottom to top, 4 = circling
+void Screen::transition(int direction, float transitionTime) { //direction 0 = bottom to top, 1 = top to bottom, 2 = right to left, 3 = left to right, 4 = circling
 	inTransition = true;
 	std::array<int, std::max(Main::FIELD_WIDTH, Main::FIELD_HEIGHT)> arr;
 	for (int i = 0; i < std::max(Main::FIELD_WIDTH, Main::FIELD_HEIGHT); ++i) {
@@ -130,15 +130,15 @@ void Screen::transition(int direction) { //direction 0 = left to right, 1 = righ
 	int currentLine = 1;
 	int xOffset = 0;
 	int yOffset = 0;
-	std::random_shuffle(arr.begin(), arr.end());
+	std::random_device rd;
+	std::shuffle(arr.begin(), arr.end(), rd);
 	sf::Clock clock;
-	const float transitionTime = 0.0004f;
 	for (int i = 0; i < Main::TRANSITION_VARIETY; ++i) {
-		if (direction == 0) {
+		if (direction == 3) {
 			for (int i = xOffset; i < currentLine; i++) {
 				for (int j = 0; j < Main::FIELD_HEIGHT; j++) {
 					if (clock.getElapsedTime().asSeconds() >= transitionTime) {
-						if (arr[j] + i >= 0 && arr[j] + i < Main::FIELD_WIDTH) {
+						if (arr[j] + i >= 0 && arr[j] + i < Main::FIELD_WIDTH) { //simplify this code and add a buffer terminal for black-to-screen transitions.
 							updateTerminal(i + arr[j], j, " \x3", false, defaultColor);
 							clock.restart();
 						}
@@ -156,11 +156,11 @@ void Screen::transition(int direction) { //direction 0 = left to right, 1 = righ
 				}	
 			}
 		}
-		else if (direction == 1) {
+		else if (direction == 2) {
 			for (int i = Main::FIELD_WIDTH - xOffset; i > Main::FIELD_WIDTH - currentLine; i--) {
 				for (int j = 0; j < Main::FIELD_HEIGHT; j++) {
 					if (clock.getElapsedTime().asSeconds() >= transitionTime) {
-						if (i - arr[j] < Main::FIELD_WIDTH) {
+						if (i - arr[j] >= 0 && i - arr[j] < Main::FIELD_WIDTH) {
 							Screen::updateTerminal(i - arr[j], j, " \x3", false, defaultColor);
 							clock.restart();
 						}
@@ -178,7 +178,7 @@ void Screen::transition(int direction) { //direction 0 = left to right, 1 = righ
 				}
 			}
 		}
-		else if (direction == 2) {
+		else if (direction == 1) {
 			for (int i = yOffset; i < currentLine; i++) {
 				for (int j = 0; j < Main::FIELD_WIDTH; j++) {
 					if (clock.getElapsedTime().asSeconds() >= transitionTime) {
@@ -200,11 +200,11 @@ void Screen::transition(int direction) { //direction 0 = left to right, 1 = righ
 				}
 			}
 		}
-		else if (direction == 3) {
+		else if (direction == 0) {
 			for (int i = Main::FIELD_HEIGHT - yOffset; i > Main::FIELD_HEIGHT - currentLine; i--) {
 				for (int j = 0; j < Main::FIELD_WIDTH; j++) {
 					if (clock.getElapsedTime().asSeconds() >= transitionTime) {
-						if (i - arr[j] < Main::FIELD_HEIGHT) {
+						if (i - arr[j] >= 0 && i - arr[j] < Main::FIELD_HEIGHT) {
 							Screen::updateTerminal(j, i - arr[j], " \x3", false, defaultColor);
 							clock.restart();
 						}

@@ -29,7 +29,7 @@ static NewsTicker ticker = NewsTicker(70, 6, 5, 2, 2);
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(Main::FIELD_WIDTH * Main::TILE_WIDTH, Main::FIELD_HEIGHT * Main::TILE_HEIGHT), "Terminal Fields");
-	window.setVerticalSyncEnabled(true);
+	window.setVerticalSyncEnabled(Main::VSYNC);
 	window.setActive(false);
 	//vsync
 	

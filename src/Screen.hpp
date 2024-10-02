@@ -14,7 +14,7 @@ public:
 	static void updateTerminalColor(int x, int y, int h, int w, sf::Color color);
 	static void setCharInVertexArray(sf::VertexArray& terminal, int x, int y, char c, sf::Color color, const sf::Texture& fontTexture);
 	static void screenManager(sf::RenderWindow& window);
-	static void transition(int direction);
+	static void transition(int direction, float transitionTime);
 	static sf::Time deltaTime;
 };
 
