@@ -10,21 +10,70 @@
 int Overworld::overworldX = 0;
 int Overworld::overworldY = 0;
 int Overworld::gameSeed = 0;
+int monsterCountArray[9]{0}; //9 screens
+int chestCountArray[9]{0};
 
-void Overworld::overworldPopulate(int obstacleChance, int enemyChance) {
+void Overworld::updateMinimap() {
+	for (int i = 0; i < 9; i++) {
+		std::string monsterCount = std::to_string(monsterCountArray[i]) + "\x3";
+		std::string chestCount = std::to_string(chestCountArray[i]) + "\x3";
+		Screen::updateTerminal(82 + (i % 3) * 5, 2 + (i / 3) * 4, &monsterCount[0], false, sf::Color::Red);
+		Screen::updateTerminal(82 + (i % 3) * 5, 3 + (i / 3) * 4, &chestCount[0], false, sf::Color(150, 150, 0));
+	}
+}
+
+int Overworld::getScreenSeed(int gameSeed, int overworldX, int overworldY) {
+	auto seed = (255 + overworldX) * (9 * ( 255 + overworldY)) * (gameSeed % 65535);
+	return seed;
+}
+
+void Overworld::overworldMapCalculator(float obstacleChance, float enemyChance, float chestChance) {
+
+	//to optimize the code, i can asssume obstacleChance is bigger than enemyChance, and enemyChance is bigger than chestChance, and nest some if statements together in the for loop here, but I'm not doing that just yet.
+
+	for (int i = Overworld::overworldX - 1; i < 2; i++) {
+		for (int j = Overworld::overworldY - 1; j < 2; j++) {
+			auto seed = getScreenSeed(gameSeed, i, j);
+			std::mt19937 gen(seed);
+    		std::uniform_int_distribution<> dist(1, 100);
+			for (int k = 1; k < Main::FIELD_HEIGHT-5; k++) {
+        		for (int l = 1; l < Main::FIELD_WIDTH-23; l++) {
+				//if (dist(gen) < obstacleChance) {
+				//}
+				if (dist(gen) <= enemyChance) {
+						monsterCountArray[(i + 1) * 3 + (j + 1)] ++;
+					}
+				if (dist(gen) <= chestChance) {
+						chestCountArray[(i + 1) * 3 + (j + 1)] ++;
+				}
+            }
+        }
+    }
+	}
+	updateMinimap();
+}
+
+
+
+void Overworld::overworldPopulate(float obstacleChance, float enemyChance, float chestChance) {
 	auto seed = (255 + overworldX) * (9 * ( 255 + overworldY)) * (gameSeed % 65535);
     std::mt19937 gen(seed);
-    std::uniform_int_distribution<> dist(1, 100);
+    std::uniform_real_distribution<> dist(1, 100);
 
     for (int i = 1; i < Main::FIELD_HEIGHT-5; i++) {
         for (int j = 1; j < Main::FIELD_WIDTH-23; j++) {
-            if (dist(gen) < obstacleChance) {
+            if (dist(gen) <= obstacleChance) {
                 Main::terminal[i][j] = '#';
-				if (dist(gen) <= enemyChance) {
-					Main::terminal[i][j] = 'E';
-					Main::terminalColor[i][j] = sf::Color::Red;
-				}
             }
+			if (dist(gen) <= enemyChance) {
+				Main::terminal[i][j] = 'E';
+				Main::terminalColor[i][j] = sf::Color::Red;
+			}
+			if (dist(gen) <= chestChance) {
+				Main::terminal[i][j] = 'C';
+				Main::terminalColor[i][j] = sf::Color::Yellow;
+				//ain::terminalColor[i][j] = sf::Color(150, 150, 155);
+			}
         }
     }
 	for (int i = 0; i < Main::FIELD_HEIGHT; i++) {
@@ -32,17 +81,43 @@ void Overworld::overworldPopulate(int obstacleChance, int enemyChance) {
 	}
 	std::string screenText = "On screen (" + std::to_string(overworldX) + ", " + std::to_string(overworldY) + ")";
 	Main::ticker.addNews(screenText);
+
+	//check for borders
+	if (overworldX == -1) {
+		for (int i = 0; i < Main::FIELD_HEIGHT - 4; i++) {
+			Main::terminal[i][0] = '#';
+		}
+	}
+	if (overworldX == 1) {
+		for (int i = 0; i < Main::FIELD_HEIGHT - 4; i++) {
+			Main::terminal[i][Main::FIELD_WIDTH - 23] = '#';
+		}	
+	}
+	if (overworldY == -1) {
+		for (int i = 0; i < Main::FIELD_WIDTH - 22; i++) {
+			Main::terminal[0][i] = '#';
+		}
+	}
+	if (overworldY == 1) {
+		for (int i = 0; i < Main::FIELD_WIDTH - 22; i++) {
+			Main::terminal[Main::FIELD_HEIGHT - 5][i] = '#';
+		}
+	}
+	updateMinimap();
 }
 
+
+
 void Overworld::overworldInit() {
+	Main::ticker.changeSize(19, Main::FIELD_HEIGHT - 22, 32, 80, 22);
+	Main::ticker.addNews("Entered new game!"); 
 	std::random_device rd;
 	Overworld::gameSeed = rd();
 	Screen::clearTerminal();
 	Screen::clearTerminalColor();
-	overworldPopulate(10, 5);
+	overworldPopulate(10, 5, 5);
+	overworldMapCalculator(10, 5, 5);
 	overworldHandler(sf::Keyboard::Unknown);
-	Main::ticker.changeSize(19, Main::FIELD_HEIGHT - 22, 32, 80, 22);
-	Main::ticker.addNews("Entered new game!"); 
 }
 
 void Overworld::overworldChangeScreen(int direction, Player& player) {
@@ -66,8 +141,10 @@ void Overworld::overworldChangeScreen(int direction, Player& player) {
 	}
 	Screen::clearTerminal();
 	Screen::clearTerminalColor();
-	overworldPopulate(10, 5);
+	overworldPopulate(10, 5, 5);
 }
+
+
 
 bool Overworld::checkCollision(int direction, Player& player) {
 	switch (direction) {
@@ -76,7 +153,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y - 1][player.x] == 'E') {
-			Screen::transition(0);
+			Screen::transition(3);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -86,7 +163,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y + 1][player.x] == 'E') {
-			Screen::transition(0);
+			Screen::transition(3);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -96,7 +173,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y][player.x-1] == 'E') {
-			Screen::transition(0);
+			Screen::transition(3);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -106,7 +183,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 			return false;
 		}
 		else if (Main::terminal[player.y][player.x+1] == 'E') {
-			Screen::transition(0);
+			Screen::transition(3);
 			Main::gameState = 2;
 			Battle::battleInit(player);
 		}
@@ -118,7 +195,7 @@ bool Overworld::checkCollision(int direction, Player& player) {
 Player player(Main::FIELD_HEIGHT/2, Main::FIELD_HEIGHT/2 + 11, "Kayra");
 
 void Overworld::updateStats(Player& player) {
-	std::string statsText = "Hello " + player.name + "! You are currently on screen 0, 0\nX: " + std::to_string(player.x) + " Y: " + std::to_string(player.y) + " HP: " + std::to_string(player.health) + " MP: " + std::to_string(player.mana) + " XP: " + std::to_string(player.xp) + "\x3";
+	std::string statsText = "Hello " + player.name + "! You are currently on screen (" + std::to_string(overworldX) + "," + std::to_string(overworldY) + ")\nX: " + std::to_string(player.x) + " Y: " + std::to_string(player.y) + " HP: " + std::to_string(player.health) + " MP: " + std::to_string(player.mana) + " XP: " + std::to_string(player.xp) + "\x3";
 	char* charStatsText = &statsText[0];
 	Screen::deleteTerminal(2, Main::FIELD_HEIGHT - 3, 2, Main::FIELD_WIDTH - 24);
 	Screen::updateTerminal(2, Main::FIELD_HEIGHT - 3, charStatsText, false, sf::Color(255, 255, 0));
@@ -160,7 +237,6 @@ void Overworld::overworldHandler(sf::Keyboard::Key key) {
 		}
 		break;
 	}
-	//todo: integrate screen border collision checks into checkCollision
 	if (Main::gameState == 1) {
 		player.updateLocation();
 		Overworld::updateStats(player);

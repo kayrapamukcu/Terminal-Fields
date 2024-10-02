@@ -24,11 +24,9 @@ cd build
 ```
 3. **Build the project**
 ```bash
-cmake -B build
+cmake -B build -G "MinGW Makefiles"
 cmake --build build
 ```
-4. **Run it**
-
 The executable should be in `build/bin` now.
 
 ## TODO

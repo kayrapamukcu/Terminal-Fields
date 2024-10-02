@@ -126,7 +126,7 @@ void Screen::transition(int direction) { //direction 0 = left to right, 1 = righ
 	std::array<int, std::max(Main::FIELD_WIDTH, Main::FIELD_HEIGHT)> arr;
 	for (int i = 0; i < std::max(Main::FIELD_WIDTH, Main::FIELD_HEIGHT); ++i) {
 		arr[i] = -1 * (i % Main::TRANSITION_VARIETY);
-	} //dont necessarily need array size of Main::FIELD_WIDTH; sometimes Main::FIELD_HEIGHT is enough, or vice versa
+	} 
 	int currentLine = 1;
 	int xOffset = 0;
 	int yOffset = 0;

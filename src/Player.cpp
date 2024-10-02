@@ -3,7 +3,9 @@
 #include <string>
 
 void Player::updateLocation() {
-	Main::terminal[oldY][oldX] = ' ';
+	if(Main::terminal[oldY][oldX] != '#') {
+		Main::terminal[oldY][oldX] = ' ';
+	}
 	Main::terminal[y][x] = 'P';
 	Main::terminalColor[oldY][oldX] = defaultColor;
 	Main::terminalColor[y][x] = sf::Color::Green;

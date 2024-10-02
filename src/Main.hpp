@@ -14,7 +14,7 @@ public:
 	static constexpr int TILE_HEIGHT = 12;
 	static constexpr int TRANSITION_VARIETY = 13;
 	static constexpr int STAGE_SIZE = 3;
-	static constexpr auto GAME_VERSION = "alpha 0.0.7";
+	static constexpr auto GAME_VERSION = "alpha 0.0.8";
 	//static constexpr bool VSYNC = false;
 	static bool quit;
 	static int gameState;

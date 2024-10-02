@@ -18,7 +18,7 @@ void Sound::playMusic(const char* musicPath, sf::Music& music) {
 void Sound::soundManager() {
 	sf::Music music;
 	Sound::playMusic("assets/mus/mus_menu.ogg", music);
-	music.setPitch(0.8f);
+	music.setPitch(1.0f);
 	music.setVolume(100.0f);
 	while (!Main::quit) {
 		if (Main::gameState == 0) {
