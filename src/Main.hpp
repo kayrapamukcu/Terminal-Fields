@@ -14,11 +14,13 @@ public:
 	static constexpr int TILE_HEIGHT = 12;
 	static constexpr int TRANSITION_VARIETY = 13;
 	//static constexpr int STAGE_SIZE = 3;
-	static constexpr auto GAME_VERSION = "alpha 0.0.8";
+	static constexpr auto GAME_VERSION = "alpha 0.0.9";
 	static constexpr bool VSYNC = true;
 	static bool quit;
+	static bool renderTerminalBuffer;
 	static int gameState;
 	static char terminal[FIELD_HEIGHT][FIELD_WIDTH];
+	static bool terminalBuffer[FIELD_HEIGHT][FIELD_WIDTH];
 	static sf::Color terminalColor[FIELD_HEIGHT][FIELD_WIDTH];
 	static NewsTicker ticker;
 private:

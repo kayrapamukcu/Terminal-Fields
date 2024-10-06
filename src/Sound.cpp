@@ -20,9 +20,24 @@ void Sound::soundManager() {
 	Sound::playMusic("assets/mus/mus_menu.ogg", music);
 	music.setPitch(1.0f);
 	music.setVolume(100.0f);
+	int currentState = 0;
 	while (!Main::quit) {
 		if (Main::gameState == 0) {
 		}
+		else if (Main::gameState == 1) {
+			if (currentState != 1) {
+				music.stop();
+				Sound::playMusic("assets/mus/mus_overworld.ogg", music);
+				currentState = 1;
+			}
+		}
+		/*else if (Main::gameState == 2) {
+			if (currentState != 2) {
+				music.stop();
+				Sound::playMusic("assets/mus/mus_battle.ogg", music);
+				currentState = 2;
+			}
+		}*/
 		else {
 			music.stop();
 		}
@@ -35,10 +50,6 @@ void Sound::playSound(const char* soundPath)
 {
 	sf::SoundBuffer buffer;
 	sf::Sound sound;
-	if (!buffer.loadFromFile(soundPath)) {
-		std::cout << "Error: Could not load sound file: " << soundPath << std::endl;
-		return;
-	}
 	sound.setBuffer(buffer);
 	sound.play();
 	while (sound.getStatus() == sf::Sound::Playing) {

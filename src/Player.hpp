@@ -12,12 +12,13 @@ public:
     int y;
     int oldX;
     int oldY;
-	int maxHealth = 200;
-    int health = 200;
+	int maxHealth = 200232;
+    int health = 122121;
     int maxMana = 100;
-    int mana = 100;
+    int mana = 26;
     int xp = 0;
     int level = 1;
+    int gold = 0;
     Player(int x, int y, std::string name);
     std::string getArt();
     void updateLocation();

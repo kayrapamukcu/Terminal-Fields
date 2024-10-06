@@ -8,7 +8,7 @@ The game loop is currently not finished.
 
 You can find the latest release in the releases tab, but if you want to, you can compile the code yourself:
 
-### Compiling with CMake
+### Compiling with CMake under Windows
 
 To compile Terminal Fields, you will need to have CMake and MinGW installed on your system. Follow these steps:
 
@@ -20,7 +20,6 @@ cd TerminalFields
 2. **Create a build directory**
 ```bash
 mkdir build
-cd build
 ```
 3. **Build the project**
 ```bash
@@ -28,12 +27,10 @@ cmake -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 The executable should be in `build/bin` now.
-
-## TODO
-add .xm file support
+You'll also need to copy the assets folder to `build/bin`, otherwise the game will boot to a white screen.
 
 ## Music Used
-TODO
+TODO (still figuring out what to use)
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details. 

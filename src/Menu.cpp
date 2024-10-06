@@ -1,66 +1,66 @@
-#include "Main.hpp"
+#include <string>
+#include <vector>
+
 #include "Menu.hpp"
 #include "Screen.hpp"
-#include "Overworld.hpp"
-#include <string>
 
-void Menu::menuInit() {
-	Screen::updateTerminal(12, 3, " $$$$$$$$\\                                   $$\\                     $$\\ \n \\__$$  __|                                  \\__|                    $$ |\n    $$ |    $$$$$$\\   $$$$$$\\  $$$$$$\\$$$$\\  $$\\ $$$$$$$\\   $$$$$$\\  $$ |\n    $$ |   $$  __$$\\ $$  __$$\\ $$  _$$  _$$\\ $$ |$$  __$$\\  \\____$$\\ $$ |\n    $$ |   $$$$$$$$ |$$ |  \\__|$$ / $$ / $$ |$$ |$$ |  $$ | $$$$$$$ |$$ |\n    $$ |   $$   ____|$$ |      $$ | $$ | $$ |$$ |$$ |  $$ |$$  __$$ |$$ |\n    $$ |   \\$$$$$$$\\ $$ |      $$ | $$ | $$ |$$ |$$ |  $$ |\\$$$$$$$ |$$ |\n    \\__|    \\_______|\\__|      \\__| \\__| \\__|\\__|\\__|  \\__| \\_______|\\__|\n\n               /$$$$$$$$ /$$           /$$       /$$           \n              | $$_____/|__/          | $$      | $$           \n              | $$       /$$  /$$$$$$ | $$  /$$$$$$$  /$$$$$$$ \n              | $$$$$   | $$ /$$__  $$| $$ /$$__  $$ /$$_____/ \n              | $$__/   | $$| $$$$$$$$| $$| $$  | $$|  $$$$$$  \n              | $$      | $$| $$_____/| $$| $$  | $$ \\____  $$\n              | $$      | $$|  $$$$$$$| $$|  $$$$$$$ /$$$$$$$/ \n              |__/      |__/ \\_______/|__/ \\_______/|_______/ \x3", true, defaultColor);
-	//do other things
-	Screen::updateTerminal(40, 24, "------------------- \n# Start Game      #\n-------------------\n\n-------------------\n# Load Game       #\n-------------------\n\n-------------------\n# Options         #\n-------------------\n\n-------------------\n# Exit            #\n-------------------\x3", false, defaultColor);
-	updateCursorLocation(-1);
-	Main::ticker.changeSize(70, 2, 3, 2, Main::FIELD_HEIGHT - 2);
-	Main::ticker.addNews("Welcome to Terminal Fields! Version: " + std::string(Main::GAME_VERSION));
+sf::Color Menu::menuSelectedColor = sf::Color(249, 241, 165);
+int cursorLocation = 0;
+int cursorLocationPrev = 0;
+
+void Menu::display() {
+	//do stuff
+	Screen::updateTerminal(x-cursorOffset, y + 1 + cursorLocationPrev * spaceBetweenButtons, " \x3", false, defaultColor);
+	Screen::updateTerminalColor(x, y + cursorLocation * spaceBetweenButtons, 3, buttonWidth + 2, defaultColor);
+	std::string buttonName;
+	int buttonCount = sizeof(buttonNames);
+	for (int i = 0; i < buttonCount; i++) {
+		std::string line = "";
+		for (int j = 0; j < buttonWidth; j++) {
+			line += "-";
+		}
+		line += "\x3";
+		int buttonStringLength = buttonNames[i].length();
+		if (buttonStringLength < buttonWidth) {
+			int difference = buttonWidth - buttonStringLength - 2;
+			int leftPadding = difference / 2;
+			int rightPadding = difference - leftPadding;
+			buttonName = "#" + std::string(leftPadding, ' ') + buttonNames[i] + std::string(rightPadding, ' ') + "#" + "\x3";;
+		}
+		Screen::updateTerminal(x, y + i * spaceBetweenButtons, line.c_str(), false, defaultColor);
+		Screen::updateTerminal(x, y + i * spaceBetweenButtons + 1, buttonName.c_str(), false, defaultColor);
+		Screen::updateTerminal(x, y + i * spaceBetweenButtons + 2, line.c_str(), false, defaultColor);
+	}
+	Screen::updateTerminalColor(x - cursorOffset, y + cursorLocation * spaceBetweenButtons, 3, buttonWidth + cursorOffset, menuSelectedColor);
+	Screen::updateTerminal(x-cursorOffset, y + 1 + cursorLocation * spaceBetweenButtons, "*\x3", false, menuSelectedColor);
+	cursorLocationPrev = cursorLocation;
 }
 
-void Menu::updateCursorLocation(int direction) {
-	const sf::Color menuSelectedColor(249, 241, 165);
-	Screen::deleteTerminal(38, 25 + Menu::cursorLocation * 4, 1, 1);
-	Screen::updateTerminalColor(38, 24 + Menu::cursorLocation * 4, 3, 21, defaultColor);
+void Menu::handleMovement(int direction) {
 	if (direction == 0) {
-		Menu::cursorLocation++;
-		if (Menu::cursorLocation > 3) {
-			Menu::cursorLocation = 0;
+		cursorLocation++;
+		if (cursorLocation >= sizeof(buttonNames)) {
+			cursorLocation = 0;
 		}
 	}
 	else if (direction == 1) {
-		Menu::cursorLocation--;
-		if (Menu::cursorLocation < 0) {
-			Menu::cursorLocation = 3;
+		cursorLocation--;
+		if (cursorLocation < 0) {
+			cursorLocation = sizeof(buttonNames)-1;
 		}
 	}
-	else if (direction == -1){
-		Menu::cursorLocation = 0;
+	else if (direction == -1) {
+		cursorLocation = 0;
 	}
-	Screen::updateTerminalColor(38, 24 + Menu::cursorLocation * 4, 3, 21, menuSelectedColor);
-	Screen::updateTerminal(38, 25 + Menu::cursorLocation * 4, "*\x3", false, menuSelectedColor);
+	display();
 }
 
-void Menu::menuHandler(sf::Keyboard::Key key) {
-	switch (key) {
-	case sf::Keyboard::Up:
-		Menu::updateCursorLocation(1);
-		break;
-	case sf::Keyboard::Down:
-		Menu::updateCursorLocation(0);
-		break;
-	case sf::Keyboard::Return:
-		switch (Menu::cursorLocation) {
-		case 0:
-			Main::gameState = 1;
-			Overworld::overworldInit();
-			break;
-		case 1:
-			//load game
-
-			break;
-		case 2:
-			//options
-			break;
-		case 3:
-			Main::quit = true;
-			break;
-		}
-		break;
-	}
+Menu::Menu(int x, int y, int buttonWidth, int spaceBetweenButtons, int cursorOffset, std::string* buttonNames) {
+	this->x = x;
+	this->y = y;
+	this->buttonWidth = buttonWidth;
+	this->spaceBetweenButtons = spaceBetweenButtons;
+	this->cursorOffset = cursorOffset;
+	this->buttonNames = buttonNames;
+	cursorLocation = 0;
 }

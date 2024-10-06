@@ -2,14 +2,23 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Graphics.hpp>
+#include <string>
 
 class Menu {
 public:
-	static void menuInit();
-	static void updateCursorLocation(int direction);
-	static void menuHandler(sf::Keyboard::Key key);
-	static int cursorLocation;
+	int x;
+	int y;
+	int buttonWidth;
+	int spaceBetweenButtons;
+	int cursorOffset;
+	std::string* buttonNames;
+	static sf::Color menuSelectedColor;
+	Menu(int x, int y, int buttonWidth, int spaceBetweenButtons, int cursorOffset, std::string* buttonNames);
+	void display();
+	void handleMovement(int direction);
+	int cursorLocation;
+	int cursorLocationPrev;
 };
 
 #endif

@@ -17,6 +17,8 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 
 void Battle::battleInit(Player& player) {
 	//display player info
+	Screen::clearTerminal();
+	Screen::clearTerminalBuffer(true);
 	Screen::updateTerminal(5, 6, &player.getArt()[0], false, defaultColor);
 
 	std::string playerInfo = player.name + "\nHP:" + std::to_string(player.maxHealth) + "/" + std::to_string(player.health) + "\nMP:" + std::to_string(player.maxMana) + "/" + std::to_string(player.mana) + "\x3";

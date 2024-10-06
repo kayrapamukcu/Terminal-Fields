@@ -6,6 +6,9 @@
 
 class Overworld {
 public:
+	static float obstacleChance;
+	static float enemyChance;
+	static float chestChance;
 	static int overworldX;
 	static int overworldY;
 	static int gameSeed;
