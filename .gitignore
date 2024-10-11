@@ -17,6 +17,7 @@ ipch/
 *.log
 *.ilk
 *.idb
+ideas.txt
 CMakeCache.txt
 Debug/
 Release/

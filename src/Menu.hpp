@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 
 class Menu {
 public:
@@ -12,13 +13,14 @@ public:
 	int buttonWidth;
 	int spaceBetweenButtons;
 	int cursorOffset;
-	std::string* buttonNames;
+	std::vector<std::string> buttonNames;
 	static sf::Color menuSelectedColor;
-	Menu(int x, int y, int buttonWidth, int spaceBetweenButtons, int cursorOffset, std::string* buttonNames);
+	Menu(int x, int y, int buttonWidth, int spaceBetweenButtons, int cursorOffset, std::vector<std::string>buttonNames);
 	void display();
 	void handleMovement(int direction);
-	int cursorLocation;
-	int cursorLocationPrev;
+	int cursorLocation = 0;
+	int cursorLocationPrev = 0;
+	int buttonCount = 0;
 };
 
 #endif

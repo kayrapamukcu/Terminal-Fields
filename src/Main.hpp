@@ -3,6 +3,8 @@
 #define MAIN_H
 #include <SFML/Graphics.hpp>
 #include "NewsTicker.hpp"
+#include "Player.hpp"
+#include <memory>
 
 static const sf::Color defaultColor(170, 170, 170);
 
@@ -14,7 +16,7 @@ public:
 	static constexpr int TILE_HEIGHT = 12;
 	static constexpr int TRANSITION_VARIETY = 13;
 	//static constexpr int STAGE_SIZE = 3;
-	static constexpr auto GAME_VERSION = "alpha 0.0.9";
+	static constexpr auto GAME_VERSION = "alpha 0.1.0";
 	static constexpr bool VSYNC = true;
 	static bool quit;
 	static bool renderTerminalBuffer;
@@ -23,11 +25,11 @@ public:
 	static bool terminalBuffer[FIELD_HEIGHT][FIELD_WIDTH];
 	static sf::Color terminalColor[FIELD_HEIGHT][FIELD_WIDTH];
 	static NewsTicker ticker;
+	static Player player;
 private:
 	
 };
-
-
-
-
 #endif
+
+
+

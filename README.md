@@ -14,8 +14,8 @@ To compile Terminal Fields, you will need to have CMake and MinGW installed on y
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/kayrapamukcu/TerminalFields.git
-cd TerminalFields
+git clone https://github.com/kayrapamukcu/Terminal-Fields.git
+cd Terminal-Fields
 ```
 2. **Create a build directory**
 ```bash

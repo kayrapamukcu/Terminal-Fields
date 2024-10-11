@@ -127,85 +127,84 @@ void Overworld::overworldInit() {
 	overworldHandler(sf::Keyboard::Unknown);
 }
 
-void Overworld::overworldChangeScreen(int direction, Player& player) {
+void Overworld::overworldChangeScreen(int direction) {
 	switch (direction) {
 		//try making all these switch cases better
 	case 0: //up
 		Overworld::overworldY--;
-		player.y = Main::FIELD_HEIGHT - 5;
+		Main::player.setY(Main::FIELD_HEIGHT - 5);
 		break;
 	case 1: //down
 		Overworld::overworldY++;
-		player.y = 0;
+		Main::player.setY(0);
 		break;
 	case 2: //left
 		Overworld::overworldX--;
-		player.x = Main::FIELD_WIDTH - 23;
+		Main::player.setX(Main::FIELD_WIDTH - 23);
 		break;
 	case 3: //right
 		Overworld::overworldX++;
-		player.x = 0;
+		Main::player.setX(0);
 		break;
 	}
 	
 	Screen::clearTerminalBuffer(true);
 	Screen::transition(direction, 0.00008f, false);
 	Overworld::overworldPopulate(Overworld::obstacleChance, Overworld::enemyChance, Overworld::chestChance);
-	Overworld::updateStats(player);
+	Overworld::updateStats();
 	Screen::transition(direction, 0.00008f, true);
 }
 
-bool Overworld::checkCollision(int direction, Player& player) {
+bool Overworld::checkCollision(int direction) {
 	switch (direction) {
 	case 0: //up
-		if (Main::terminal[player.y - 1][player.x] == '#') {
+		if (Main::terminal[Main::player.getY() - 1][Main::player.getX()] == '#') {
 			return false;
 		}
-		else if (Main::terminal[player.y - 1][player.x] == 'E') {
+		else if (Main::terminal[Main::player.getY() - 1][Main::player.getX()] == 'E') {
 			Screen::transition(4, 0.0003f, false);
 			Main::gameState = 2;
-			Battle::battleInit(player);
+			Battle::battleInit();
 		}
 		break;
 	case 1: //down
-		if (Main::terminal[player.y + 1][player.x] == '#') {
+		if (Main::terminal[Main::player.getY() + 1][Main::player.getX()] == '#') {
 			return false;
 		}
-		else if (Main::terminal[player.y + 1][player.x] == 'E') {
+		else if (Main::terminal[Main::player.getY() + 1][Main::player.getX()] == 'E') {
 			Screen::transition(4, 0.0003f, false);
 			Main::gameState = 2;
-			Battle::battleInit(player);
+			Battle::battleInit();
 		}
 		break;
 	case 2: //left
-		if (Main::terminal[player.y][player.x - 1] == '#') {
+		if (Main::terminal[Main::player.getY()][Main::player.getX() - 1] == '#') {
 			return false;
 		}
-		else if (Main::terminal[player.y][player.x-1] == 'E') {
+		else if (Main::terminal[Main::player.getY()][Main::player.getX()-1] == 'E') {
 			Screen::transition(4, 0.0003f, false);
 			Main::gameState = 2;
-			Battle::battleInit(player);
+			Battle::battleInit();
 		}
 		break;
 	case 3: //right
-		if (Main::terminal[player.y][player.x + 1] == '#') {
+		if (Main::terminal[Main::player.getY()][Main::player.getX() + 1] == '#') {
 			return false;
 		}
-		else if (Main::terminal[player.y][player.x+1] == 'E') {
+		else if (Main::terminal[Main::player.getY()][Main::player.getX()+1] == 'E') {
 			Screen::transition(4, 0.0003f, false);
 			Main::gameState = 2;
-			Battle::battleInit(player);
+			Battle::battleInit();
 		}
 		break;
 	}
 	return true;
 }
 
-Player player(Main::FIELD_HEIGHT/2, Main::FIELD_HEIGHT/2 + 11, "Kayra");
 
-void Overworld::updateStats(Player& player) {
+void Overworld::updateStats() {
 	//bottom text
-	std::string statsText = "Hello " + player.name + "! You are currently on screen (" + std::to_string(overworldX) + "," + std::to_string(overworldY) + ")\nX: " + std::to_string(player.x) + " Y: " + std::to_string(player.y) +  " XP: " + std::to_string(player.xp) + "\x3";
+	std::string statsText = "Hello " + Main::player.getName() + "! You are currently on screen (" + std::to_string(overworldX) + "," + std::to_string(overworldY) + ")\nX: " + std::to_string(Main::player.getX()) + " Y: " + std::to_string(Main::player.getX()) +  " XP: " + std::to_string(Main::player.getXP()) + "\x3";
 	Screen::deleteTerminal(2, Main::FIELD_HEIGHT - 3, 2, Main::FIELD_WIDTH - 24);
 	Screen::updateTerminal(2, Main::FIELD_HEIGHT - 3, &statsText[0], false, sf::Color(255, 255, 0));
 	//health and mana bars
@@ -220,21 +219,21 @@ void Overworld::updateStats(Player& player) {
 	Screen::updateTerminal(80, 18, barSize, false, sf::Color(0,0,96));
 	int healthToBeFilled = 0;
 	int manaToBeFilled = 0;
-	float hpPerBlock = static_cast<float>(player.maxHealth) / 17.0f;
-	float mpPerBlock = static_cast<float>(player.maxMana) / 17.0f;
+	float hpPerBlock = static_cast<float>(Main::player.getMaxHealth()) / 17.0f;
+	float mpPerBlock = static_cast<float>(Main::player.getMaxMana()) / 17.0f;
 	for (int i = 0; i < 15; i++) {
-		if (player.health > (static_cast<float>(player.maxHealth) / 17.0f) * i) {
+		if (Main::player.getHealth() > (static_cast<float>(Main::player.getMaxHealth()) / 17.0f) * i) {
 			healthToBeFilled++;
 		} else {
-			Screen::updateTerminalColor(80+i, 15, 1, 1, sf::Color(96+static_cast<int>(159 * std::fmod(player.health, hpPerBlock) / hpPerBlock),0,0));
+			Screen::updateTerminalColor(80+i, 15, 1, 1, sf::Color(96+static_cast<int>(159 * std::fmod(Main::player.getHealth(), hpPerBlock) / hpPerBlock),0,0));
 			break;
 		}
 	}
 	for (int i = 0; i < 15; i++) {
-		if (player.mana > (static_cast<float>(player.maxMana) / 17.0f) * i) {
+		if (Main::player.getMana() > (static_cast<float>(Main::player.getMaxMana()) / 17.0f) * i) {
 			manaToBeFilled++;
 		} else {
-			Screen::updateTerminalColor(80+i, 18, 1, 1, sf::Color(0,0,96+static_cast<int>(159 * std::fmod(player.mana, mpPerBlock) / hpPerBlock)));
+			Screen::updateTerminalColor(80+i, 18, 1, 1, sf::Color(0,0,96+static_cast<int>(159 * std::fmod(Main::player.getMana(), mpPerBlock) / hpPerBlock)));
 			break;
 		}
 	}
@@ -242,8 +241,8 @@ void Overworld::updateStats(Player& player) {
 	Screen::updateTerminalColor(80, 18, 1, manaToBeFilled, sf::Color::Blue);
 
 	//doing all this so the hp/mana text is right aligned
-	std::string statStr = std::to_string(player.health);
-	std::string maxStatStr = std::to_string(player.maxHealth);
+	std::string statStr = std::to_string(Main::player.getHealth());
+	std::string maxStatStr = std::to_string(Main::player.getMaxHealth());
 	std::vector<char>statBar(3+statStr.length()+maxStatStr.length(), ' ');
 	int ind = 0;
 	for (ind = 0; ind < statStr.length(); ind++) {
@@ -257,8 +256,8 @@ void Overworld::updateStats(Player& player) {
 	}
 	statBar[ind] = '\x3';
 	Screen::updateTerminal(80+(17-ind), 16, &statBar[0], false, sf::Color::Red);
-	statStr = std::to_string(player.mana);
-	maxStatStr = std::to_string(player.maxMana);
+	statStr = std::to_string(Main::player.getMana());
+	maxStatStr = std::to_string(Main::player.getMaxMana());
 	statBar = std::vector<char>(3+statStr.length()+maxStatStr.length(), ' ');
 	ind = 0;
 	for (ind = 0; ind < statStr.length(); ind++) {
@@ -278,41 +277,41 @@ void Overworld::updateStats(Player& player) {
 void Overworld::overworldHandler(sf::Keyboard::Key key) {
 	switch (key) {
 	case sf::Keyboard::Up:
-		if (Overworld::checkCollision(0, player)) {
-			player.y--;
-			if (player.y < 0) {
-				Overworld::overworldChangeScreen(0, player);
+		if (Overworld::checkCollision(0)) {
+			Main::player.setY(Main::player.getY() - 1);
+			if (Main::player.getY() < 0) {
+				Overworld::overworldChangeScreen(0);
 			}
 		}
 		break;
 	case sf::Keyboard::Down:
-		if (Overworld::checkCollision(1, player)) {
-			player.y++;
-			if (player.y > Main::FIELD_HEIGHT - 5) {
-				Overworld::overworldChangeScreen(1, player);
+		if (Overworld::checkCollision(1)) {
+			Main::player.setY(Main::player.getY() + 1);
+			if (Main::player.getY() > Main::FIELD_HEIGHT - 5) {
+				Overworld::overworldChangeScreen(1);
 			}
 		}
 		break;
 	case sf::Keyboard::Left:
-		if (Overworld::checkCollision(2, player)) {
-			player.x--;
-			if (player.x < 0) {
-				Overworld::overworldChangeScreen(2, player);
+		if (Overworld::checkCollision(2)) {
+			Main::player.setX(Main::player.getX() - 1);
+			if (Main::player.getX() < 0) {
+				Overworld::overworldChangeScreen(2);
 			}
 		}
 
 		break;
 	case sf::Keyboard::Right:
-		if (Overworld::checkCollision(3, player)) {
-			player.x++;
-			if (player.x > Main::FIELD_WIDTH - 23) {
-				Overworld::overworldChangeScreen(3, player);
+		if (Overworld::checkCollision(3)) {
+			Main::player.setX(Main::player.getX() + 1);
+			if (Main::player.getX() > Main::FIELD_WIDTH - 23) {
+				Overworld::overworldChangeScreen(3);
 			}
 		}
 		break;
 	}
 	if (Main::gameState == 1) {
-		player.updateLocation();
-		Overworld::updateStats(player);
+		Main::player.updateLocation();
+		Overworld::updateStats();
 	}
 }

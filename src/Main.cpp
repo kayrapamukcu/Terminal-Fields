@@ -11,6 +11,7 @@
 #include "Overworld.hpp"
 #include "Battle.hpp"
 #include "NewsTicker.hpp"
+#include "Player.hpp"
 
 //gameState 0 = menu
 //gameState 1 = game
@@ -27,13 +28,12 @@ bool Main::terminalBuffer[Main::FIELD_HEIGHT][Main::FIELD_WIDTH] = { true };
 sf::Color Main::terminalColor[Main::FIELD_HEIGHT][Main::FIELD_WIDTH] = { defaultColor };
 
 static NewsTicker ticker = NewsTicker(70, 6, 5, 2, 2);
+static Player player = Player(20, 20, "Player");
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(Main::FIELD_WIDTH * Main::TILE_WIDTH, Main::FIELD_HEIGHT * Main::TILE_HEIGHT), "Terminal Fields");
 	window.setVerticalSyncEnabled(Main::VSYNC);
 	window.setActive(false);
-	//vsync
-	
 	//threads
 	//main thread = input thread
 
