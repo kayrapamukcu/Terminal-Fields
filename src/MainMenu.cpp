@@ -26,27 +26,18 @@ void MainMenu::mainMenuHandler(sf::Keyboard::Key key) {
 	case sf::Keyboard::Return:
 		switch (mainMenu.cursorLocation) {
 		case 0:
-		{
 			Main::gameState = 1;
 			Overworld::overworldInit();
 			break;
-		}
 		case 1:
-		{
 			//load game
-
 			break;
-			}
 		case 2:
-		{
 			//options
 			break;
-		}
 		case 3:
-		{
 			Main::quit = true;
 			break;
-		}
 		}
 		break;
 	}
