@@ -31,13 +31,13 @@ void Sound::soundManager() {
 				currentState = 1;
 			}
 		}
-		/*else if (Main::gameState == 2) {
+		else if (Main::gameState == 2) {
 			if (currentState != 2) {
 				music.stop();
 				Sound::playMusic("assets/mus/mus_battle.ogg", music);
 				currentState = 2;
 			}
-		}*/
+		}
 		else {
 			music.stop();
 		}

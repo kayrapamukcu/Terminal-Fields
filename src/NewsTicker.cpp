@@ -24,7 +24,7 @@ void NewsTicker::addNews(std::string newsItem) {
 
 void NewsTicker::printNews() {
 	std::string totalText = "";
-	Screen::deleteTerminal(x, y, height, width);
+	Screen::deleteTerminal(x, y, height, width, false);
 	int newLines = 0;
 	int newLinesPrev = 0;
 	for (int i = news.size(); i > 0; i--) {

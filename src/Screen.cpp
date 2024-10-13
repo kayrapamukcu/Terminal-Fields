@@ -7,6 +7,109 @@
 #include <iostream>
 
 bool inTransition = false;
+sf::Clock deltaClock;
+sf::Time Screen::deltaTime;
+sf::RenderWindow* Screen::windowRef = nullptr;
+
+void Screen::renderBarStats(int x, int y, int health, int maxHealth, int mana, int maxMana, bool renderXPBar) {
+	Screen::deleteTerminal(x, y, 8, 19, true);
+	char barSize[20];
+	for (int i = 0; i < 19; ++i) {
+    	barSize[i] = -37;
+	} //have to initialize the char array like this otherwise it doesn't work for whatever reason lol (extended ascii is weird)
+	barSize[19] = '\x3';
+	Screen::updateTerminal(x, y, "HP\x3", false, sf::Color::Red);
+	Screen::updateTerminal(x, y+1, barSize, false, sf::Color(96,0,0));
+	Screen::updateTerminal(x, y+3, "MP\x3", false, sf::Color::Blue);
+	Screen::updateTerminal(x, y+4, barSize, false, sf::Color(0,0,96));
+	int healthToBeFilled = 0;
+	int manaToBeFilled = 0;
+	float hpPerBlock = static_cast<float>(maxHealth) / 19.0f;
+	float mpPerBlock = static_cast<float>(maxMana) / 19.0f;
+	for (int i = 0; i < 19; i++) {
+		if (health > (static_cast<float>(maxHealth) / 19.0f) * i) {
+			healthToBeFilled++;
+		} else {
+			Screen::updateTerminalColor(x+i, y+1, 1, 1, sf::Color(96+static_cast<int>(159 * std::fmod(health, hpPerBlock) / hpPerBlock),0,0));
+			break;
+		}
+	}
+	for (int i = 0; i < 19; i++) {
+		if (mana > (static_cast<float>(maxMana) / 19.0f) * i) {
+			manaToBeFilled++;
+		} else {
+			Screen::updateTerminalColor(x+i, y+4, 1, 1, sf::Color(0,0,96+static_cast<int>(159 * std::fmod(mana, mpPerBlock) / hpPerBlock)));
+			break;
+		}
+	}
+	Screen::updateTerminalColor(x, y+1, 1, healthToBeFilled, sf::Color::Red);
+	Screen::updateTerminalColor(x, y+4, 1, manaToBeFilled, sf::Color::Blue);
+
+	if(renderXPBar) {
+		Screen::updateTerminal(x, y+6, "XP\x3", false, sf::Color(96, 255, 0));
+		Screen::updateTerminal(x, y+7, barSize, false, sf::Color(32, 96, 0));
+		int xpToBeFilled = 0;
+		float xpPerBlock = Player::xpToLevelUp / 19.0f;
+		for (int i = 0; i < 19; i++) {
+			if (Player::xp > (100.0f / 19.0f) * i) {
+				xpToBeFilled++;
+			} else {
+				Screen::updateTerminalColor(x+i, y+7, 1, 1, sf::Color(32+static_cast<int>(54 * std::fmod(Player::xp, xpPerBlock) / xpPerBlock),96+static_cast<int>(159 * std::fmod(Player::xp, xpPerBlock) / xpPerBlock),0));
+				break;
+			}
+		}
+		Screen::updateTerminalColor(x, y+7, 1, xpToBeFilled, sf::Color(96, 255, 0));
+	}
+
+	//doing all this so the hp/mana text is right aligned
+	std::string statStr = std::to_string(health);
+	std::string maxStatStr = std::to_string(maxHealth);
+	std::vector<char>statBar(3+statStr.length()+maxStatStr.length(), ' ');
+	int ind = 0;
+	for (ind = 0; ind < statStr.length(); ind++) {
+		statBar[ind] = statStr[ind];
+	}
+	statBar[ind] = '/';
+	ind ++;
+	for (int i = 0; i < maxStatStr.length(); i++) {
+		statBar[ind] = maxStatStr[i];
+		ind++;
+	}
+	statBar[ind] = '\x3';
+	Screen::updateTerminal(x+(19-ind), y+2, &statBar[0], false, sf::Color::Red);
+	statStr = std::to_string(mana);
+	maxStatStr = std::to_string(maxMana);
+	statBar = std::vector<char>(3+statStr.length()+maxStatStr.length(), ' ');
+	ind = 0;
+	for (ind = 0; ind < statStr.length(); ind++) {
+		statBar[ind] = statStr[ind];
+	}
+	statBar[ind] = '/';
+	ind ++;
+	for (int i = 0; i < maxStatStr.length(); i++) {
+		statBar[ind] = maxStatStr[i];
+		ind++;
+	}
+	statBar[ind] = '\x3';
+	Screen::updateTerminal(x+(19-ind), y+5, &statBar[0], false, sf::Color::Blue);
+	if (renderXPBar) {
+		statStr = std::to_string(Player::xp);
+		maxStatStr = std::to_string(Player::xpToLevelUp);
+		statBar = std::vector<char>(3+statStr.length()+maxStatStr.length(), ' ');
+		ind = 0;
+		for (ind = 0; ind < statStr.length(); ind++) {
+			statBar[ind] = statStr[ind];
+		}
+		statBar[ind] = '/';
+		ind ++;
+		for (int i = 0; i < maxStatStr.length(); i++) {
+			statBar[ind] = maxStatStr[i];
+			ind++;
+		}
+		statBar[ind] = '\x3';
+		Screen::updateTerminal(x+(19-ind), y+8, &statBar[0], false, sf::Color(0, 255, 0));
+	}
+}
 
 void Screen::clearTerminalBuffer(bool trueorfalse)
 {
@@ -41,13 +144,17 @@ void Screen::clearTerminalColor()
 	}
 }
 
-void Screen::deleteTerminal(int x, int y, int h, int w)
+void Screen::deleteTerminal(int x, int y, int h, int w, bool clearColor)
 {
 	for (int i = y; i < y + h; ++i)
 	{
 		for (int j = x; j < x + w; ++j)
 		{
 			Main::terminal[i][j] = ' ';
+			if (clearColor)
+			{
+				Main::terminalColor[i][j] = defaultColor;
+			}
 		}
 	}
 }
@@ -313,11 +420,10 @@ void Screen::transition(int direction, float transitionTime, bool clearOrDraw)
 	Main::renderTerminalBuffer = false;
 }
 
-sf::Clock deltaClock;
-sf::Time Screen::deltaTime;
 void Screen::screenManager(sf::RenderWindow &window)
 {
 	// window.setVerticalSyncEnabled(Main::VSYNC); //vsync
+	windowRef = &window;
 	sf::Texture fontTexture;
 	if (!fontTexture.loadFromFile("assets/img/raster_font.png"))
 	{

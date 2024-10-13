@@ -11,8 +11,9 @@
 class Battle {
 public:
 	static void battleHandler(sf::Keyboard::Key key);
-	static void battleInit();
+	static void battleInit(int monsterX, int monsterY);
 	static void updateDisplays();
+	static void pause(int duration, bool skippable);
 private:
 	static Enemy enemy;
 };

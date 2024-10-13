@@ -15,8 +15,7 @@ public:
 	static constexpr int TILE_WIDTH = 8;
 	static constexpr int TILE_HEIGHT = 12;
 	static constexpr int TRANSITION_VARIETY = 13;
-	//static constexpr int STAGE_SIZE = 3;
-	static constexpr auto GAME_VERSION = "alpha 0.1.0-dev";
+	static constexpr auto GAME_VERSION = "alpha 0.1.0";
 	static constexpr bool VSYNC = true;
 	static bool quit;
 	static bool renderTerminalBuffer;

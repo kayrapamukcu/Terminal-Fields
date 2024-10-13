@@ -10,6 +10,7 @@
 *.sln
 *.dll
 ipch/
+bin/
 *.db
 *.obj
 *.exe
@@ -18,6 +19,7 @@ ipch/
 *.ilk
 *.idb
 ideas.txt
+todo.txt
 CMakeCache.txt
 Debug/
 Release/

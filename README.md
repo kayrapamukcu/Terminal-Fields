@@ -1,6 +1,6 @@
 # Terminal Fields
 
-Terminal Fields is a 2D game developed using C++ and SFML. Mostly done as a fun project and to dip my toes in C++ :) It should run on Windows Vista and later, and Linux as well, although that's untested for now.
+Terminal Fields is a 2D game developed using C++ and SFML. Mostly done as a fun project and to dip my toes in C++ :) It runs on Windows Vista and later, and Linux as well, although I don't provide linux binaries yet so you'll have to compile the project yourself for that.
 
 The game loop is currently not finished.
 

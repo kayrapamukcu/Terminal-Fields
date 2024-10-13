@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.26)
 project(TerminalFields LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -16,7 +16,10 @@ FetchContent_MakeAvailable(SFML)
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.hpp")
 add_executable(TerminalFields ${SOURCES})
 target_link_libraries(TerminalFields sfml-system sfml-window sfml-graphics sfml-audio)
-target_compile_features(TerminalFields PRIVATE cxx_std_14)
+target_compile_features(TerminalFields PRIVATE cxx_std_17)
+
+set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_BUILD_TYPE Release)
 
 if (MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")

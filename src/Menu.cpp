@@ -29,9 +29,12 @@ void Menu::display() {
 		Screen::updateTerminal(x, y + i * spaceBetweenButtons + 1, buttonName.c_str(), false, defaultColor);
 		Screen::updateTerminal(x, y + i * spaceBetweenButtons + 2, line.c_str(), false, defaultColor);
 	}
-	Screen::updateTerminalColor(x - cursorOffset, y + cursorLocation * spaceBetweenButtons, 3, buttonWidth + cursorOffset, menuSelectedColor);
-	Screen::updateTerminal(x-cursorOffset, y + 1 + cursorLocation * spaceBetweenButtons, "*\x3", false, menuSelectedColor);
-	cursorLocationPrev = cursorLocation;
+	if (cursorLocation != -1) {
+		Screen::updateTerminalColor(x - cursorOffset, y + cursorLocation * spaceBetweenButtons, 3, buttonWidth + cursorOffset, menuSelectedColor);
+		Screen::updateTerminal(x-cursorOffset, y + 1 + cursorLocation * spaceBetweenButtons, "*\x3", false, menuSelectedColor);
+		cursorLocationPrev = cursorLocation;
+	}
+	
 }
 
 void Menu::handleMovement(int direction) {
@@ -49,6 +52,10 @@ void Menu::handleMovement(int direction) {
 	}
 	else if (direction == -1) {
 		cursorLocation = 0;
+	}
+	else if (direction == -2) {
+		cursorLocationPrev = cursorLocation;
+		cursorLocation = -1;
 	}
 	display();
 }

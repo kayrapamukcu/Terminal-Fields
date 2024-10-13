@@ -28,7 +28,6 @@ bool Main::terminalBuffer[Main::FIELD_HEIGHT][Main::FIELD_WIDTH] = { true };
 sf::Color Main::terminalColor[Main::FIELD_HEIGHT][Main::FIELD_WIDTH] = { defaultColor };
 
 static NewsTicker ticker = NewsTicker(70, 6, 5, 2, 2);
-static Player player = Player(20, 20, "Player");
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(Main::FIELD_WIDTH * Main::TILE_WIDTH, Main::FIELD_HEIGHT * Main::TILE_HEIGHT), "Terminal Fields");
