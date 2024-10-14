@@ -14,8 +14,9 @@ public:
 	static void battleInit(int monsterX, int monsterY);
 	static void updateDisplays();
 	static void pause(int duration, bool skippable);
+	static void generateRandomEnemy();
 private:
-	static Enemy enemy;
+	
 };
 
 #endif

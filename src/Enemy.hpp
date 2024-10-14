@@ -3,6 +3,8 @@
 #define ENEMY_H
 
 #include <string>
+#include "Main.hpp"
+#include <memory>
 
 class Enemy {
 public:
@@ -25,9 +27,27 @@ public:
         def = de;
         type = t;
     }
-    std::string getArt();
     static Enemy getRandomEnemy();
-    static int getRandomEnemyID();
+    //custom behavior for each enemy
+    virtual void attack();
+    virtual std::string getArt();
+    virtual ~Enemy() {}
+};
+
+class Sik : public Enemy {
+public:
+    Sik() : Enemy("Sik", 9999999, 10000, 750, 100, 0) {}
+    void attack() override{
+        Main::ticker.addNews("I am Sik, the king of all Sik...!");
+    }
+};
+
+class Frog : public Enemy {
+public:
+    Frog() : Enemy("Frog", 25, 10, 2, 1, 0) {}
+    void attack() override{
+        Main::ticker.addNews("RIBBIT");
+    }
 };
 
 #endif

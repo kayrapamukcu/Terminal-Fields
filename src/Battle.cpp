@@ -9,17 +9,33 @@
 #include "Main.hpp"
 #include "Overworld.hpp"
 #include <iostream>
+#include <functional>
+#include <random> 
+#include <string>
+
 
 Menu battleMenu = Menu(3, 30, 19, 4, 2, std::vector<std::string>{ "Attack", "Concentrate", "Items", "Special", "Flee" }); 
-Enemy Battle::enemy("Placeholder", 10, 10, 10, 10, 0);
+
+std::unique_ptr<Enemy> enemy;
 int x = 0;
 int y = 0;
+
+std::unique_ptr<Enemy> generateRandomEnemy() {
+    std::vector<std::function<std::unique_ptr<Enemy>()>> monsterList = {
+        []() { return std::make_unique<Frog>(); },
+        []() { return std::make_unique<Sik>(); }
+    };
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, monsterList.size() - 1);
+    return monsterList[dist(gen)]();
+}
 
 void Battle::updateDisplays() {
 	Screen::updateTerminal(3, 12, &(Player::name + "\x3")[0], false, defaultColor);
 	Screen::renderBarStats(3, 14, Player::health, Player::maxHealth, Player::mana, Player::maxMana, false);
-	Screen::updateTerminal(Main::FIELD_WIDTH - 20, 12, &(enemy.name + "\x3")[0], false, defaultColor);
-	Screen::renderBarStats(Main::FIELD_WIDTH - 20, 14, enemy.health, enemy.maxHealth, enemy.mana, enemy.maxMana, false);
+	Screen::updateTerminal(Main::FIELD_WIDTH - 20, 12, &(enemy->name + "\x3")[0], false, defaultColor);
+	Screen::renderBarStats(Main::FIELD_WIDTH - 20, 14, enemy->health, enemy->maxHealth, enemy->mana, enemy->maxMana, false);
 }
 
 void Battle::battleInit(int monsterX, int monsterY) {
@@ -28,11 +44,12 @@ void Battle::battleInit(int monsterX, int monsterY) {
 	Screen::clearTerminalColor();
 	Screen::clearTerminalBuffer(true);
 	Screen::updateTerminal(5, 6, &Player::getArt()[0], false, defaultColor);
-	enemy = Enemy::getRandomEnemy();
+	generateRandomEnemy();
+	enemy->attack();
 	x = monsterX;
 	y = monsterY;
 	Main::ticker.changeSize(74, 20, 15, 24, 30);
-	Main::ticker.addNews("You encountered " + enemy.name + "!");
+	Main::ticker.addNews("You encountered " + enemy->name + "!");
 	battleMenu.display();
 	updateDisplays();
 }
@@ -75,13 +92,13 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 			
 			if (dist(gen) <= Player::critChance) {
 				dmg = Player::atk * Player::critMult * (1 + (rand() % 10)/10.0f);
-				Main::ticker.addNews("(CRIT) You attacked " + enemy.name + " for " + std::to_string(dmg) + " damage!");
+				Main::ticker.addNews("(CRIT) You attacked " + enemy->name + " for " + std::to_string(dmg) + " damage!");
 			}
 			else {
 				dmg = Player::atk * (1 + (rand() % 10)/10.0f);
-				Main::ticker.addNews("You attacked " + enemy.name + " for " + std::to_string(dmg) + " damage!");
+				Main::ticker.addNews("You attacked " + enemy->name + " for " + std::to_string(dmg) + " damage!");
 			}
-			enemy.health -= dmg;
+			enemy->health -= dmg;
 		}
 		else if (battleMenu.cursorLocation == 1) {
 			//concentrate
@@ -133,8 +150,8 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 			}
 		}
 		//enemy turn
-		if(enemy.health < 0) {
-			enemy.health = 0;
+		if(enemy->health < 0) {
+			enemy->health = 0;
 		}
 		if(Player::health > Player::maxHealth) {
 			Player::health = Player::maxHealth;
@@ -144,12 +161,12 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 		}
 		Battle::updateDisplays();
 		pause(750, false);
-		if (enemy.health > 0) {
-			int dmg = enemy.atk * (1 + (rand() % 10)/10.0f);
-			Main::ticker.addNews(enemy.name + " attacked you for " + std::to_string(dmg) + " damage!");
+		if (enemy->health > 0) {
+			int dmg = enemy->atk * (1 + (rand() % 10)/10.0f);
+			Main::ticker.addNews(enemy->name + " attacked you for " + std::to_string(dmg) + " damage!");
 			Player::health -= dmg;
 		} else {
-			Main::ticker.addNews("You defeated " + enemy.name + "!");
+			Main::ticker.addNews("You defeated " + enemy->name + "!");
 			Player::xp += 10;
 			Player::processXP();
 			Main::ticker.addNews("You gained 10 XP!");
