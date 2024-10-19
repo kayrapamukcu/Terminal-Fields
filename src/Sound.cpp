@@ -6,6 +6,8 @@
 #include "Main.hpp"
 #include "Sound.hpp"
 
+sf::Music Sound::music;
+
 void Sound::playMusic(const char* musicPath, sf::Music& music) {
 	if (!music.openFromFile(musicPath)) {
 		std::cout << "Error: Could not load music file: " << musicPath << std::endl;
@@ -15,14 +17,21 @@ void Sound::playMusic(const char* musicPath, sf::Music& music) {
 	music.play();
 }
 
+void Sound::stopMusic() {
+	music.stop();
+}
+
 void Sound::soundManager() {
-	sf::Music music;
-	Sound::playMusic("assets/mus/mus_menu.ogg", music);
 	music.setPitch(1.0f);
 	music.setVolume(100.0f);
-	int currentState = 0;
+	int currentState = -1;
 	while (!Main::quit) {
 		if (Main::gameState == 0) {
+			if (currentState != 0) {
+				music.stop();
+				Sound::playMusic("assets/mus/mus_menu.ogg", music);
+				currentState = 0;
+			}
 		}
 		else if (Main::gameState == 1) {
 			if (currentState != 1) {
@@ -36,6 +45,12 @@ void Sound::soundManager() {
 				music.stop();
 				Sound::playMusic("assets/mus/mus_battle.ogg", music);
 				currentState = 2;
+			}
+		} else if (Main::gameState == 3) {
+			if (currentState != 3) {
+				music.stop();
+				Sound::playMusic("assets/mus/mus_gameover.ogg", music);
+				currentState = 3;
 			}
 		}
 		else {

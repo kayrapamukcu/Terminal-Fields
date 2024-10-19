@@ -21,14 +21,6 @@ int Overworld::chestCountArray[9]{0};
 
 std::unordered_map<Overworld::MonsterKey, bool, Overworld::MonsterKeyHash> Overworld::monsterKilledMap;
 
-//Zone 1: Plains
-//Zone 2: Forest
-//Zone 3: Desert
-//Zone 4: Tundra
-//Zone 5: Hell
-//Zone 6: The End
-//i know, generic, but it's what i have for now, to be implemented later
-
 bool Overworld::isMonsterKilled(int overworldX, int overworldY, int x, int y) {
     Overworld::MonsterKey key = { overworldX, overworldY, x, y };
     auto it = Overworld::monsterKilledMap.find(key); 
@@ -139,6 +131,7 @@ void Overworld::overworldPopulate(float obstacleChance, float enemyChance, float
 void Overworld::overworldInit() {
 	Main::ticker.changeSize(19, Main::FIELD_HEIGHT - 24, 32, 80, 24);
 	Main::ticker.addNews("Entered new game!"); 
+	Player::initializePlayer("Player1");
 	std::random_device rd;
 	Overworld::gameSeed = rd();
 	Screen::clearTerminal();

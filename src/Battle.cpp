@@ -8,11 +8,11 @@
 #include "Menu.hpp"
 #include "Main.hpp"
 #include "Overworld.hpp"
+#include "Sound.hpp"
+#include "GameOver.hpp"
+
 #include <iostream>
 #include <functional>
-#include <random> 
-#include <string>
-
 
 Menu battleMenu = Menu(3, 30, 19, 4, 2, std::vector<std::string>{ "Attack", "Concentrate", "Items", "Special", "Flee" }); 
 
@@ -44,7 +44,7 @@ void Battle::battleInit(int monsterX, int monsterY) {
 	Screen::clearTerminalColor();
 	Screen::clearTerminalBuffer(true);
 	Screen::updateTerminal(5, 6, &Player::getArt()[0], false, defaultColor);
-	generateRandomEnemy();
+	enemy = generateRandomEnemy();
 	enemy->attack();
 	x = monsterX;
 	y = monsterY;
@@ -153,12 +153,6 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 		if(enemy->health < 0) {
 			enemy->health = 0;
 		}
-		if(Player::health > Player::maxHealth) {
-			Player::health = Player::maxHealth;
-		}
-		if(Player::mana > Player::maxMana) {
-			Player::mana = Player::maxMana;
-		}
 		Battle::updateDisplays();
 		pause(750, false);
 		if (enemy->health > 0) {
@@ -179,6 +173,22 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 			Main::gameState = 1;
 			Overworld::overworldInitLater();
 		}
+		
+		if(Player::health > Player::maxHealth) {
+			Player::health = Player::maxHealth;
+		}
+		else if (Player::health < 0) {
+			Player::health = 0;
+			Main::ticker.addNews("You died!");
+			Battle::updateDisplays();
+			Sound::stopMusic();
+			pause(500, false);
+			Screen::fadeTerminal(1.5f);
+			Main::gameState = 3;
+			pause(2000, false);
+			GameOver::gameOverInit();
+		}
+
 		if (Main::gameState == 2) Battle::updateDisplays();
 		break;	
 	}

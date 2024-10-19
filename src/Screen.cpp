@@ -7,6 +7,7 @@
 #include <iostream>
 
 bool inTransition = false;
+float transitionTime = 0.1f;
 sf::Clock deltaClock;
 sf::Time Screen::deltaTime;
 sf::RenderWindow* Screen::windowRef = nullptr;
@@ -142,6 +143,11 @@ void Screen::clearTerminalColor()
 			Main::terminalColor[y][x] = defaultColor;
 		}
 	}
+}
+
+void Screen::fadeTerminal(float transitionSpeed) {
+	inTransition = true;
+	transitionTime = 1/transitionSpeed;
 }
 
 void Screen::deleteTerminal(int x, int y, int h, int w, bool clearColor)
@@ -425,6 +431,7 @@ void Screen::screenManager(sf::RenderWindow &window)
 	// window.setVerticalSyncEnabled(Main::VSYNC); //vsync
 	windowRef = &window;
 	sf::Texture fontTexture;
+	float fadeTimer = 0;
 	if (!fontTexture.loadFromFile("assets/img/raster_font.png"))
 	{
 		return;
@@ -434,7 +441,9 @@ void Screen::screenManager(sf::RenderWindow &window)
 	{
 		sf::VertexArray terminalDraw(sf::Quads, Main::FIELD_WIDTH * Main::FIELD_HEIGHT * 4); // 4 vertices per character (quad)
 		window.clear();
-		Main::ticker.printNews();
+		if (Main::gameState != 3) {
+			Main::ticker.printNews();
+		}
 		if (Main::renderTerminalBuffer)
 		{
 			for (int i = 0; i < Main::FIELD_HEIGHT; ++i)
@@ -449,6 +458,42 @@ void Screen::screenManager(sf::RenderWindow &window)
 					{
 						Screen::setCharInVertexArray(terminalDraw, j, i, Main::terminal[i][j], Main::terminalColor[i][j], fontTexture);
 					}
+				}
+			}
+		}
+		else if (inTransition)
+		{
+			fadeTimer += 256*transitionTime*Screen::deltaTime.asSeconds();
+			if (fadeTimer >= 256.0f)
+			{
+				clearTerminal();
+				clearTerminalColor();
+				inTransition = false;
+				fadeTimer = 0;
+			}
+			for (int i = 0; i < Main::FIELD_HEIGHT; ++i)
+			{
+				for (int j = 0; j < Main::FIELD_WIDTH; ++j)
+				{
+					if (Main::terminal[i][j] == '\n')
+					{
+						continue;
+					}
+					
+					float Red = Main::terminalColor[i][j].r - fadeTimer*((float)Main::terminalColor[i][j].r/(float)255);
+					float Green = Main::terminalColor[i][j].g - fadeTimer*((float)Main::terminalColor[i][j].g/(float)255);
+					float Blue = Main::terminalColor[i][j].b - fadeTimer*((float)Main::terminalColor[i][j].b/(float)255);
+
+					if(Red < 0) {
+						Red = 0;
+					}
+					if (Green < 0) {
+						Green = 0;
+					}
+					if (Blue < 0) {
+						Blue = 0;
+					}
+					Screen::setCharInVertexArray(terminalDraw, j, i, Main::terminal[i][j], sf::Color(Red, Green, Blue), fontTexture);
 				}
 			}
 		}

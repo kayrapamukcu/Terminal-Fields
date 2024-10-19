@@ -9,6 +9,7 @@ public:
 	static void clearTerminal();
 	static void clearTerminalBuffer(bool trueorfalse);
 	static void clearTerminalColor();
+	static void fadeTerminal(float transitionSpeed);
 	static void deleteTerminal(int x, int y, int h, int w, bool clearColor); //delete certain area of terminal
 	static void updateTerminal(int x, int y, const char* text, bool clear, sf::Color color);
 	static void updateTerminalArea(int x, int y, int w, int h, const char* text, bool clear, sf::Color color, bool changeColor);

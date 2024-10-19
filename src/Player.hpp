@@ -34,6 +34,7 @@ public:
     static std::string getArt();
     static void updateLocation();
     static void processXP();
+    static void initializePlayer(std::string name);
     
 private:
     

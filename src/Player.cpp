@@ -46,6 +46,28 @@ Player::Player(int x, int y, std::string name) {
 	updateLocation();
 }
 
+void Player::initializePlayer(std::string name) {
+	Player::maxHealth = 100;
+	Player::maxMana = 50;
+	Player::health = Player::maxHealth;
+	Player::mana = Player::maxMana;
+	Player::xp = 0;
+	Player::level = 1;
+	Player::gold = 0;
+	Player::x = 40;
+	Player::y = 25;
+	Player::oldX = 40;
+	Player::oldY = 25;
+	Player::atk = 2;
+	Player::def = 2;
+	Player::agi = 2;
+	Player::mag = 2;
+	Player::intell = 2;
+	Player::critChance = 10;
+	Player::critMult = 1.5f;
+	Player::name = name;
+}
+
 std::string Player::getArt() {
 	return "  O\n\\_|_/\n  |\n / \\\x3";
 }

@@ -12,6 +12,7 @@
 #include "Battle.hpp"
 #include "NewsTicker.hpp"
 #include "Player.hpp"
+#include "GameOver.hpp"
 
 //gameState 0 = menu
 //gameState 1 = game
@@ -20,6 +21,7 @@
 bool Main::renderTerminalBuffer = false;
 bool Main::quit = false;
 int Main::gameState = 0;
+int Main::currentZone = 1;
 
 int MainMenu::cursorLocation = 0;
 
@@ -63,6 +65,8 @@ int main() {
 					}
 					else if (Main::gameState == 2) {
 						Battle::battleHandler(event.key.code);
+					} else if (Main::gameState == 3) {
+						GameOver::gameOverHandler(event.key.code);
 					}
 					break;
 				}
