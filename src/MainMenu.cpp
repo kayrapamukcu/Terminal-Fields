@@ -26,6 +26,8 @@ void MainMenu::mainMenuHandler(sf::Keyboard::Key key) {
 	case sf::Keyboard::Return:
 		switch (mainMenu.cursorLocation) {
 		case 0:
+			//ask for name and seed
+			
 			Main::gameState = 1;
 			Overworld::overworldInit();
 			break;

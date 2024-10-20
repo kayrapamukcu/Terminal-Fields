@@ -29,7 +29,7 @@ public:
     }
     static Enemy getRandomEnemy();
     //custom behavior for each enemy
-    virtual void attack();
+    virtual void behavior();
     virtual std::string getArt();
     virtual ~Enemy() {}
 };
@@ -37,16 +37,25 @@ public:
 class Sik : public Enemy {
 public:
     Sik() : Enemy("Sik", 9999999, 10000, 750, 100, 0) {}
-    void attack() override{
+    std::string getArt() {
+	return "  O\n\\_|_/\n  |\n / \\\x3";
+    }
+    void behavior() override{
         Main::ticker.addNews("I am Sik, the king of all Sik...!");
+        Player::health -= 50;
     }
 };
 
 class Frog : public Enemy {
 public:
     Frog() : Enemy("Frog", 25, 10, 2, 1, 0) {}
-    void attack() override{
+    std::string getArt() {
+	return "  O\n\\_|_/\n  |\n / \\\x3";
+    }
+    void behavior() override{
+
         Main::ticker.addNews("RIBBIT");
+        
     }
 };
 

@@ -23,7 +23,7 @@ void Sound::stopMusic() {
 
 void Sound::soundManager() {
 	music.setPitch(1.0f);
-	music.setVolume(100.0f);
+	music.setVolume(5.0f);
 	int currentState = -1;
 	while (!Main::quit) {
 		if (Main::gameState == 0) {

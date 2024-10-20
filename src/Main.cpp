@@ -14,10 +14,6 @@
 #include "Player.hpp"
 #include "GameOver.hpp"
 
-//gameState 0 = menu
-//gameState 1 = game
-//gameState 2 = battle
-
 bool Main::renderTerminalBuffer = false;
 bool Main::quit = false;
 int Main::gameState = 0;

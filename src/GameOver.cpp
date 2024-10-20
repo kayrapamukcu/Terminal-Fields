@@ -8,6 +8,7 @@
 #include <string>
 
 Menu gameOverMenu = Menu(35, 30, 30, 4, 2, std::vector<std::string>{ "Return to Main Menu", "Load Last Save", "Quit" });
+bool init = false;
 
 void GameOver::renderGameOver() {
     sf::Clock clock;
@@ -31,6 +32,7 @@ void GameOver::renderGameOver() {
             Screen::updateTerminal(52, index+1, "   ____   __      __  ______   _____  \n  / __ \\  \\ \\    / / |  ____| |  __ \\ \n | |  | |  \\ \\  / /  | |__    | |__) |\n | |  | |   \\ \\/ /   |  __|   |  _  / \n | |__| |    \\  /    | |____  | | \\ \\ \n  \\____/      \\/     |______| |_|  \\_\\ \x3", false, defaultColor);
         }
     }
+    init = true;
 }
 void GameOver::gameOverInit() {
     Screen::clearTerminal();
@@ -41,6 +43,9 @@ void GameOver::gameOverInit() {
 }
 
 void GameOver::gameOverHandler(sf::Keyboard::Key key) {
+    if (!init) {
+        return;
+    }
     switch (key) {
     case sf::Keyboard::Up:
         gameOverMenu.handleMovement(1);

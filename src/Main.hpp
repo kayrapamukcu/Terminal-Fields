@@ -15,7 +15,7 @@ public:
 	static constexpr int TILE_WIDTH = 8;
 	static constexpr int TILE_HEIGHT = 12;
 	static constexpr int TRANSITION_VARIETY = 13;
-	static constexpr auto GAME_VERSION = "alpha 0.1.1";
+	static constexpr auto GAME_VERSION = "alpha 0.1.2-dev";
 	static constexpr bool VSYNC = true;
 	static int currentZone;
 	static bool quit;

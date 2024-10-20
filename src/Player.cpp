@@ -15,6 +15,8 @@ int Player::y = 25;
 int Player::oldX = 40;
 int Player::oldY = 25;
 
+//I'm not too sure about the level scaling yet.
+
 int Player::atk = 2;
 int Player::def = 2;
 int Player::agi = 2;

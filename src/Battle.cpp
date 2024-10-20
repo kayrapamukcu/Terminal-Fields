@@ -15,7 +15,9 @@
 #include <functional>
 
 Menu battleMenu = Menu(3, 30, 19, 4, 2, std::vector<std::string>{ "Attack", "Concentrate", "Items", "Special", "Flee" }); 
+Menu specialMenu = Menu(3, 30, 19, 4, 2, std::vector<std::string>{ "Heal", "Special 2", "Special 3", "Special 4", "Special 5" });
 
+bool inSubMenu = false;
 std::unique_ptr<Enemy> enemy;
 int x = 0;
 int y = 0;
@@ -34,8 +36,8 @@ std::unique_ptr<Enemy> generateRandomEnemy() {
 void Battle::updateDisplays() {
 	Screen::updateTerminal(3, 12, &(Player::name + "\x3")[0], false, defaultColor);
 	Screen::renderBarStats(3, 14, Player::health, Player::maxHealth, Player::mana, Player::maxMana, false);
-	Screen::updateTerminal(Main::FIELD_WIDTH - 20, 12, &(enemy->name + "\x3")[0], false, defaultColor);
-	Screen::renderBarStats(Main::FIELD_WIDTH - 20, 14, enemy->health, enemy->maxHealth, enemy->mana, enemy->maxMana, false);
+	Screen::updateTerminal(Main::FIELD_WIDTH - 21, 12, &(enemy->name + "\x3")[0], false, defaultColor);
+	Screen::renderBarStats(Main::FIELD_WIDTH - 21, 14, enemy->health, enemy->maxHealth, enemy->mana, enemy->maxMana, false);
 }
 
 void Battle::battleInit(int monsterX, int monsterY) {
@@ -45,7 +47,7 @@ void Battle::battleInit(int monsterX, int monsterY) {
 	Screen::clearTerminalBuffer(true);
 	Screen::updateTerminal(5, 6, &Player::getArt()[0], false, defaultColor);
 	enemy = generateRandomEnemy();
-	enemy->attack();
+	Screen::updateTerminal(Main::FIELD_WIDTH - 19, 6, &enemy->getArt()[0], false, defaultColor);
 	x = monsterX;
 	y = monsterY;
 	Main::ticker.changeSize(74, 20, 15, 24, 30);
@@ -62,7 +64,7 @@ void Battle::pause(int duration, bool skippable) {
 		while (Screen::windowRef->pollEvent(event)) {
 			if (event.type == sf::Event::KeyPressed) {
 				if (skippable) {
-					if (event.key.code == sf::Keyboard::Z) {
+					if (event.key.code == sf::Keyboard::X) {
 						battleMenu.handleMovement(-1);
 						return;
 					}
@@ -73,15 +75,195 @@ void Battle::pause(int duration, bool skippable) {
 	battleMenu.handleMovement(-1);
 }
 
+void Battle::enemyTurn() {
+	//enemy turn
+		if(enemy->health < 0) {
+			enemy->health = 0;
+		}
+		Battle::updateDisplays();
+		pause(750, false);
+		if (enemy->health > 0) {
+			enemy->behavior();
+		} else {
+			Main::ticker.addNews("You defeated " + enemy->name + "!");
+			Player::xp += 10;
+			Player::processXP();
+			Main::ticker.addNews("You gained 10 XP!");
+
+			Overworld::MonsterKey k = { Overworld::overworldX, Overworld::overworldY, x, y };
+   			Overworld::monsterKilledMap[k] = true;
+			Overworld::monsterCountArray[(Overworld::overworldX+1) + (Overworld::overworldY+1)*3]--;
+
+			pause(2000, true);
+			Main::gameState = 1;
+			Overworld::overworldInitLater();
+		}
+		
+		if(Player::health > Player::maxHealth) {
+			Player::health = Player::maxHealth;
+		}
+		if(Player::mana > Player::maxMana) {
+			Player::mana = Player::maxMana;
+		}
+		else if (Player::health <= 0) {
+			Player::health = 0;
+			Main::ticker.addNews("You died!");
+			Battle::updateDisplays();
+			Sound::stopMusic();
+			pause(500, false);
+			Screen::fadeTerminal(1.5f);
+			Main::gameState = 3;
+			pause(2000, false);
+			GameOver::gameOverInit();
+		}
+
+		if (Main::gameState == 2) Battle::updateDisplays();
+}
+
+void Battle::optionInfo() {
+	std::string selectedThing;
+	std::string selectedThingInfo;
+	std::string dependsOn;
+	std::string cost;
+	bool costRender = false;
+	if (!inSubMenu) {
+		costRender = false;
+		switch (battleMenu.cursorLocation) {
+			case 0:
+				selectedThing = "Attack";
+				selectedThingInfo = "Attack the enemy with your weapon.";
+				dependsOn = "Strength";
+				break;
+			case 1:
+				selectedThing = "Concentrate";
+				selectedThingInfo = "Concentrate to gain mana.";
+				dependsOn = "Intelligence";
+				break;
+			case 2:
+				selectedThing = "Items";
+				selectedThingInfo = "Use an item.";
+				dependsOn = "None";
+				break;
+			case 3:
+				selectedThing = "Special";
+				selectedThingInfo = "Use a special ability.";
+				dependsOn = "Magic, Intelligence";
+				break;
+			case 4:
+				selectedThing = "Flee";
+				selectedThingInfo = "Try to escape from battle.";
+				dependsOn = "Agility";
+				break;
+		}	
+	} else {
+		costRender = true;
+		switch (specialMenu.cursorLocation) {
+			case 0:
+				selectedThing = "Heal";
+				selectedThingInfo = "Heal yourself.";
+				dependsOn = "Magic, Intelligence";
+				cost = "5 Mana";
+				break;
+			case 1:
+				selectedThing = "Special 2";
+				selectedThingInfo = "Special ability 2.";
+				dependsOn = "Magic, Intelligence";
+				cost = "5 Mana";
+				break;
+			case 2:
+				selectedThing = "Special 3";
+				selectedThingInfo = "Special ability 3.";
+				dependsOn = "Magic, Intelligence";
+				cost = "5 Mana";
+				break;
+			case 3:
+				selectedThing = "Special 4";
+				selectedThingInfo = "Special ability 4.";
+				dependsOn = "Magic, Intelligence";
+				cost = "5 Mana";
+				break;
+			case 4:
+				selectedThing = "Special 5";
+				selectedThingInfo = "Special ability 5.";
+				dependsOn = "Magic, Intelligence";
+				cost = "5 Mana";
+				break;
+		}
+	}
+	Screen::deleteTerminal(3, 22, 7, 50, true);
+	Screen::updateTerminal(3, 22, "Selected: \x3", false, defaultColor);
+	Screen::updateTerminalColor(3, 22, 1, 9, sf::Color::Green);
+	Screen::updateTerminal(3, 23, (selectedThing + "\x3").c_str(), false, defaultColor);
+	Screen::updateTerminal(3, 25, (selectedThingInfo + "\x3").c_str(), false, defaultColor);
+	if (costRender) {
+		Screen::updateTerminal(3, 27, ("Cost: " + cost + "\x3").c_str(), false, defaultColor);
+	}
+	Screen::updateTerminal(3, 28, ("Depends on: " + dependsOn + "\x3").c_str(), false, defaultColor);
+}
+
 void Battle::battleHandler(sf::Keyboard::Key key) {
+	optionInfo();
+	//i know, this is coded really badly, but so is the entire game, and i'm not going to fix that
+	if (inSubMenu) {
+		battleMenu.handleMovement(-2);
+	switch (key) {
+		case sf::Keyboard::Up:
+		specialMenu.handleMovement(1);
+		optionInfo();
+		break;
+	case sf::Keyboard::Down:
+		specialMenu.handleMovement(0);
+		optionInfo();
+		break;
+	case sf::Keyboard::Z:
+		if (specialMenu.cursorLocation == 0) {
+			//special 1
+			int heal = (Player::intell * (1 + (rand() % 40))) / 10;
+			Player::health += heal;
+			Player::mana -= 5;
+			Main::ticker.addNews("You healed yourself for " + std::to_string(heal) + " HP!");
+		}
+		else if (specialMenu.cursorLocation == 1) {
+			//special 2
+			Main::ticker.addNews("Special 2!");
+		}
+		else if (specialMenu.cursorLocation == 2) {
+			//special 3
+			Main::ticker.addNews("Special 3!");
+		} 
+		else if (specialMenu.cursorLocation == 3) {
+			//special 4
+			Main::ticker.addNews("Special 4!");
+		}
+		else if (specialMenu.cursorLocation == 4) {
+			//special 5
+			Main::ticker.addNews("Special 5!");
+		}
+		Screen::deleteTerminal(0, 30, 20, 2, true);
+		inSubMenu = false;
+		enemyTurn();
+		return;
+	case sf::Keyboard::X:
+		Screen::deleteTerminal(0, 30, 20, 2, true);
+		battleMenu.cursorLocation = 3;
+		battleMenu.display();
+		inSubMenu = false;
+		return;
+	} 
+	
+	specialMenu.display();
+	return;
+	}
 	switch (key) {
 	case sf::Keyboard::Up:
 		battleMenu.handleMovement(1);
+		optionInfo();
 		break;
 	case sf::Keyboard::Down:
 		battleMenu.handleMovement(0);
+		optionInfo();
 		break;
-	case sf::Keyboard::Return:
+	case sf::Keyboard::Z:
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<> dist(1, 100);
@@ -106,7 +288,7 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 			int manaGain;
 			
 			Main::ticker.addNews("You try concentrating with all your might...");
-			pause(1000, true);
+			pause(500, true);
 			if (dist(gen) <= 50) {
 				Main::ticker.addNews("However, your mind wanders...");
 				manaGain = (Player::intell * (1 + (rand() % 40))) / 20;
@@ -129,6 +311,9 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 		}
 		else if (battleMenu.cursorLocation == 3) {
 			//special
+			inSubMenu = true;
+			battleHandler(sf::Keyboard::Unknown);
+			break;
 		}
 		else if (battleMenu.cursorLocation == 4) {
 			//flee
@@ -149,47 +334,7 @@ void Battle::battleHandler(sf::Keyboard::Key key) {
 				break;
 			}
 		}
-		//enemy turn
-		if(enemy->health < 0) {
-			enemy->health = 0;
-		}
-		Battle::updateDisplays();
-		pause(750, false);
-		if (enemy->health > 0) {
-			int dmg = enemy->atk * (1 + (rand() % 10)/10.0f);
-			Main::ticker.addNews(enemy->name + " attacked you for " + std::to_string(dmg) + " damage!");
-			Player::health -= dmg;
-		} else {
-			Main::ticker.addNews("You defeated " + enemy->name + "!");
-			Player::xp += 10;
-			Player::processXP();
-			Main::ticker.addNews("You gained 10 XP!");
-
-			Overworld::MonsterKey k = { Overworld::overworldX, Overworld::overworldY, x, y };
-   			Overworld::monsterKilledMap[k] = true;
-			Overworld::monsterCountArray[(Overworld::overworldX+1) + (Overworld::overworldY+1)*3]--;
-
-			pause(2000, true);
-			Main::gameState = 1;
-			Overworld::overworldInitLater();
-		}
-		
-		if(Player::health > Player::maxHealth) {
-			Player::health = Player::maxHealth;
-		}
-		else if (Player::health < 0) {
-			Player::health = 0;
-			Main::ticker.addNews("You died!");
-			Battle::updateDisplays();
-			Sound::stopMusic();
-			pause(500, false);
-			Screen::fadeTerminal(1.5f);
-			Main::gameState = 3;
-			pause(2000, false);
-			GameOver::gameOverInit();
-		}
-
-		if (Main::gameState == 2) Battle::updateDisplays();
+		enemyTurn();
 		break;	
 	}
 }

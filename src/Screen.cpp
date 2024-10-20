@@ -428,7 +428,6 @@ void Screen::transition(int direction, float transitionTime, bool clearOrDraw)
 
 void Screen::screenManager(sf::RenderWindow &window)
 {
-	// window.setVerticalSyncEnabled(Main::VSYNC); //vsync
 	windowRef = &window;
 	sf::Texture fontTexture;
 	float fadeTimer = 0;
