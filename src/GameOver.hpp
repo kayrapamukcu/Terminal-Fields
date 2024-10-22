@@ -5,7 +5,7 @@
 #include <SFML/Window/Keyboard.hpp>
 
 class GameOver {
-public:
+   public:
     static void gameOverHandler(sf::Keyboard::Key key);
     static void gameOverInit();
     static void renderGameOver();
